@@ -30,6 +30,19 @@ else:
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "your_secret_key")
 
+# Place this at the top (before any functions), right after Flask app setup
+
+predefined_responses = {
+    "hello": "Hi there! How can I help you today?",
+    "how are you": "I'm just a bot, but I'm doing great! How about you?",
+    "bye": "Goodbye! Take care!",
+    "thanks": "You're welcome! Let me know if you need anything else.",
+    "help": "Sure! How can I assist you with your health today?",
+    "sickle cell": "Sickle cell disease is a genetic blood disorder. Would you like to know more about it?",
+    "fever": "If you're experiencing a fever, it's important to monitor your temperature and consult a healthcare provider if it persists.",
+    "headache": "A headache can be caused by many things. Drink plenty of water, and if it doesn't improve, consider consulting a doctor.",
+}
+
 # Handle browser favicon requests
 @app.route('/favicon.ico')
 def favicon():
@@ -79,16 +92,6 @@ def ask():
         "Here’s what you need to know:",
         "Of course, here’s the answer:"
     ])
-    predefined_responses = {
-    "hello": "Hi there! How can I help you today?",
-    "how are you": "I'm just a bot, but I'm doing great! How about you?",
-    "bye": "Goodbye! Take care!",
-    "thanks": "You're welcome! Let me know if you need anything else.",
-    "help": "Sure! How can I assist you with your health today?",
-    "sickle cell": "Sickle cell disease is a genetic blood disorder. Would you like to know more about it?",
-    "fever": "If you're experiencing a fever, it's important to monitor your temperature and consult a healthcare provider if it persists.",
-    "headache": "A headache can be caused by many things. Drink plenty of water, and if it doesn't improve, consider consulting a doctor.",
-}
 
     try:
         if ai_choice == "openai":
