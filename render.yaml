@@ -3,7 +3,7 @@ services:
     name: medicare-chatbot
     env: docker
     plan: free
-    region: oregon
+    region: singapore 
     branch: main
     buildFilter:
       paths:
