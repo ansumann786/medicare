@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Health Assistant</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+  <h1>AI Health Assistant</h1>
+
+  <div id="chatbox">
+    <p class="ai"><strong>AI Health Assistant:</strong> Hello, I'm your virtual health assistant. How can I assist you today?</p>
+  </div>
+  <input type="text" id="userInput" placeholder="Ask me a medical question..." />
+  
+  <div class="action-buttons">
+    <button onclick="sendMessage()">Send</button>
+    <button class="speak-btn" onclick="startVoiceInput()">
+      <i class="fa fa-microphone"></i>
+    </button>
+    <button onclick="speakLastMessage()">🔊</button>
+    <button onclick="resetChat()">Reset Chat</button>
+    <button onclick="checkSymptoms()">Check Symptoms</button> <!-- New Button -->
+  </div>
+  
+  <div id="loading" class="loading">Loading...</div>
+  <div class="ai-options">
+    <button class="ai-btn active" onclick="selectAI(this, 'gemini')">Gemini</button>
+    <button class="ai-btn" onclick="selectAI(this, 'openai')">OpenAI</button>
+  </div>
+
+  <script>
+    const BASE_URL = "https://your-backend-url.onrender.com"; // Update with your actual backend URL
+
+    let lastAIReply = ""; // Stores the last AI message
+
+    async function sendMessage() {
+        const input = document.getElementById("userInput").value;
+        if (!input.trim()) return;
+
+        const chatbox = document.getElementById("chatbox");
+        chatbox.innerHTML += `<p><strong>You:</strong> ${input}</p>`;
+        document.getElementById("userInput").value = "";
+        chatbox.scrollTop = chatbox.scrollHeight;
+
+        document.getElementById("loading").style.display = "inline-block";
+
+        try {
+            const res = await fetch(`${BASE_URL}/ask`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: input, ai_choice: 'openai' }) // You can use a selected AI choice
+            });
+
+            const data = await res.json();
+            lastAIReply = data.reply;  // Save it for manual speaking
+            chatbox.innerHTML += `<p><strong>AI Health Assistant:</strong> ${lastAIReply}</p>`;
+        } catch (error) {
+            lastAIReply = "Sorry, something went wrong.";
+            chatbox.innerHTML += `<p><strong>AI Health Assistant:</strong> ${lastAIReply}</p>`;
+        } finally {
+            document.getElementById("loading").style.display = "none";
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+    }
+
+    async function checkSymptoms() {
+        const input = document.getElementById("userInput").value;
+        if (!input.trim()) return;
+
+        const chatbox = document.getElementById("chatbox");
+        chatbox.innerHTML += `<p><strong>You:</strong> ${input}</p>`;
+        document.getElementById("userInput").value = "";
+        chatbox.scrollTop = chatbox.scrollHeight;
+
+        document.getElementById("loading").style.display = "inline-block";
+
+        try {
+            const res = await fetch(`${BASE_URL}/check_symptoms`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ symptoms: input })
+            });
+
+            const data = await res.json();
+            const diagnosis = data.diagnosis || "No diagnosis available.";
+            chatbox.innerHTML += `<p><strong>AI Health Assistant:</strong> ${diagnosis}</p>`;
+        } catch (error) {
+            chatbox.innerHTML += `<p><strong>AI Health Assistant:</strong> Sorry, something went wrong.</p>`;
+        } finally {
+            document.getElementById("loading").style.display = "none";
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+    }
+
+    function speakLastMessage() {
+        if (!lastAIReply) return;
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(lastAIReply);
+        utterance.voice = speechSynthesis.getVoices().find(v => v.name.includes("Google") || v.default);
+        utterance.pitch = 1.1;
+        utterance.rate = 1;
+        speechSynthesis.speak(utterance);
+    }
+
+    function startVoiceInput() {
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.onstart = () => console.log("Voice recognition started...");
+        recognition.onresult = (event) => {
+            const input = event.results[0][0].transcript;
+            document.getElementById("userInput").value = input;
+            sendMessage();  // or checkSymptoms()
+        };
+        recognition.onerror = (event) => console.error("Speech error:", event.error);
+        recognition.start();
+    }
+
+    function resetChat() {
+        fetch(`${BASE_URL}/reset`, { method: "POST" });
+        document.getElementById("chatbox").innerHTML = "";
+    }
+  </script>
+
+  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+</body>
+</html>
