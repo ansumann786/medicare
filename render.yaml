@@ -1,9 +1,9 @@
 services:
   - type: web
-    name: my-node-app
-    env: node
+    name: medicare-chatbot
+    env: python
     plan: free
-    buildCommand: npm install
-    startCommand: npm start
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
     branch: main
     autoDeploy: true
