@@ -1,8 +1,22 @@
 services:
   - type: web
     name: medicare-chatbot
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
+    env: docker
+    plan: free
+    region: oregon
     branch: main
+    buildFilter:
+      paths:
+        - Dockerfile
+        - app.py
+        - render.yaml
+    dockerContext: .
+    dockerfilePath: Dockerfile
     autoDeploy: true
+    envVars:
+      - key: FLASK_SECRET_KEY
+        value: ce4e13f7eaf5b959664fc94f09cd1e7c70ca2b9d0e00436244d8b55c388af9a8
+      - key: GEMINI_API_KEY
+        value: AIzaSyCSKWtNQTi2-nHlhf3Pt_5J1KvYTYndglY
+      - key: OPENAI_API_KEY
+        value: Sk-proj-4rgx3p—xYoIHrI9n38TLU4nH3hmstmdKjSsTB_ocgRScfzLcexQb44da8uBTRHbtTiNAw-aFlT3BlbkFJVV_9tOoK3uZ7osjrc9iWqymXpIIQBnkeUoNRZk8pIU0uMCRUwo9kihOMKrC8qgsaJIoQL3n5EA
