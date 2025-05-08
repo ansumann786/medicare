@@ -60,6 +60,16 @@ def ask():
     if not user_message:
         return jsonify({"reply": "Please enter a message."})
 
+    # Convert the user's message to lowercase for case-insensitive matching
+    user_message_lower = user_message.lower()
+
+    # Check if the message matches any of the predefined responses
+    predefined_reply = predefined_responses.get(user_message_lower)
+
+    if predefined_reply:
+        # If the message matches a predefined response, return that
+        return jsonify({"reply": predefined_reply})
+
     # Append user message to conversation
     session['conversation_history'].append({"role": "user", "content": user_message})
 
@@ -69,6 +79,16 @@ def ask():
         "Here’s what you need to know:",
         "Of course, here’s the answer:"
     ])
+    predefined_responses = {
+    "hello": "Hi there! How can I help you today?",
+    "how are you": "I'm just a bot, but I'm doing great! How about you?",
+    "bye": "Goodbye! Take care!",
+    "thanks": "You're welcome! Let me know if you need anything else.",
+    "help": "Sure! How can I assist you with your health today?",
+    "sickle cell": "Sickle cell disease is a genetic blood disorder. Would you like to know more about it?",
+    "fever": "If you're experiencing a fever, it's important to monitor your temperature and consult a healthcare provider if it persists.",
+    "headache": "A headache can be caused by many things. Drink plenty of water, and if it doesn't improve, consider consulting a doctor.",
+}
 
     try:
         if ai_choice == "openai":
